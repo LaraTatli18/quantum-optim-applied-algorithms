@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Standard constants and matrices. J  is the graph defined by a 3-qubit problem given in Appendix 3
 kappa = 0.5 # penalising factor (set in advance)
@@ -22,9 +21,6 @@ sigma_x = np.array([[0, 1],
                     [1, 0]])
 
 I_2 = np.eye(2)
-
-#print(J[1][2])
-#print(h[1])
 
 def sigma_z_j(n,j):
     " Tensor product for sigma^z_j, where n is the total number of qubits in the system and the Pauli-Z gate is applied to the jth qubit "
@@ -82,8 +78,11 @@ def H_Ising(J, h):
 
     return H_problem
 
-#print("Problem Hamiltonian:")
-#print(H_Ising(J,h))
+H_problem = H_Ising(J, h)
+print("Problem Hamiltonian:")
+print(H_problem)
+print("Minimum energy eigenvalue", np.min(H_problem))
+
 
 
 def H_transverseField(J, h, t, tmax):
@@ -103,4 +102,7 @@ def H_transverseField(J, h, t, tmax):
 
 print("Adiabatic Evolution Hamiltonian:")
 print(H_transverseField(J, h, t, tmax))
+Transverse_Field_Matrix = H_transverseField(J, h, t, tmax)
+
+print("Minimum energy eigenvalue:", np.min(Transverse_Field_Matrix))
 
