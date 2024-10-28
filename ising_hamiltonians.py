@@ -83,8 +83,6 @@ print("Problem Hamiltonian:")
 print(H_problem)
 print("Minimum energy eigenvalue", np.min(H_problem))
 
-
-
 def H_transverseField(J, h, t, tmax):
     A = 1 - t/tmax
     B = t/tmax
@@ -105,4 +103,15 @@ print(H_transverseField(J, h, t, tmax))
 Transverse_Field_Matrix = H_transverseField(J, h, t, tmax)
 
 print("Minimum energy eigenvalue:", np.min(Transverse_Field_Matrix))
+
+lowest = np.min(Transverse_Field_Matrix)
+
+def target(lowest):
+    s = []
+    for i in range(n):
+        if i == n:
+            s[i] == 1
+        else:
+            s[i] == 0
+    return s
 
