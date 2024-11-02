@@ -3,14 +3,12 @@ import scipy
 import matplotlib.pyplot as plt
 
 # Standard constants and matrices. J  is the graph defined by a 3-qubit problem given in Appendix 3
+
 kappa = 0.5 # penalising factor (set in advance)
 n = 3 # no of qubits
-t = 5 # time at which to evaluate transverse field Ising model
-tmax = 10 # total runtime of the algorithm
-q = 100 # number of timesteps
-step = tmax/q # time evolution runs from 0 to tmax, with steps of duration tmax/q
+tmax = [1, 2, 5, 10, 100] # total runtime of the algorithm
+q = 200 # number of timesteps
 i = complex(0,1)
-print(i)
 
 
 J = np.array([[0, 1, 0],
@@ -80,16 +78,35 @@ def H_Ising(J, h):
             sigma_jz = sigma_z_j(n, j+1)
             H_problem += h[j, 0] * sigma_jz
 
-
     return H_problem
 
-def H_transverseField(J, h, tmax, step):
-    timesteps = np.arange(0, tmax, step)
-    H_list = []
+
+# Initialise t=0 state:
+def initial_state(n):
+    return np.ones(2**n) / np.sqrt(2**n)
+
+psi_0 = initial_state(n) # psi at t=0
+
+# Encoding maximum independent set:
+max_independent_set = np.zeros(2**n)
+max_independent_set[5] = 1
+
+def born_rule(state, target_state):
+    inner_product = np.vdot(target_state, state)  # inner product <target_state|state>
+    probability = np.abs(inner_product) ** 2
+    return probability
+
+
+def time_evolution_operator(J, h, ground_state, target_state, tmax_value, q):
+    step = tmax_value/q
+    psi = psi_0
+    probabilities = []
+
+    timesteps = np.arange(0, tmax_value, step)
 
     for t in timesteps:
-        A = 1 - t/tmax
-        B = t/tmax
+        A = 1 - t/tmax_value
+        B = t/tmax_value
 
         H_evolve = np.zeros((2 ** n, 2 ** n))
 
@@ -100,53 +117,27 @@ def H_transverseField(J, h, tmax, step):
             H_evolve -= A * sigma_x_j(n, j)
 
         H_t = H_evolve + H_interaction
-        H_list.append(H_t)
 
-    return H_list
-
-H_list = H_transverseField(J, h, tmax, step)
-
-print("List of Adiabatic Evolution Hamiltonians:")
-print(H_list)
-
-# Initialise t=0 state:
-def initial_state(n):
-    return np.ones(2**n) / np.sqrt(2**n)
-
-psi_0 = initial_state(n) # psi at t=0
-
-max_independent_set = np.array([0., 0., 0., 0., 1., 0., 0. ,0.])
-
-
-def born_rule(state, target_state):
-    inner_product = np.vdot(target_state, state)  # inner product <target_state|state>
-    probability = np.abs(inner_product) ** 2
-    return probability
-
-
-
-def time_evolution_operator(H_list, ground_state, target_state, tmax, step):
-    timesteps = np.arange(0, tmax, step)
-    psi = psi_0
-    probabilities = []
-
-    for H in H_list:
-        psi = np.matmul(scipy.linalg.expm(-1j * step * H), psi)
+        psi = np.matmul(scipy.linalg.expm(-1 * i * step * H_t), psi)
         prob = born_rule(psi, target_state)
         probabilities.append(prob)
 
     return probabilities
 
 
+plt.figure(figsize=(8,6))
 
-print(psi_0)
-print(time_evolution_operator(H_list, psi_0, max_independent_set, tmax, step))
-success_probability = time_evolution_operator(H_list, psi_0, max_independent_set, tmax, step)
+for tmax_value in tmax:
+    success_probability = time_evolution_operator(J, h, psi_0, max_independent_set, tmax_value, q)
 
-x_values = np.arange(0, tmax, step) / tmax
-y_values = success_probability
+    x_values = np.arange(0, tmax_value, tmax_value/q) / tmax_value
+    y_values = success_probability
 
-plt.plot(x_values, y_values)
+    plt.plot(x_values, y_values, label=f'tmax = {tmax_value}')
+
+plt.xlabel('t/tmax')
+plt.ylabel('success probability')
+plt.legend()
 plt.show()
 
 
