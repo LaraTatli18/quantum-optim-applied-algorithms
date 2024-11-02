@@ -104,8 +104,10 @@ Transverse_Field_Matrix = H_transverseField(J, h, t, tmax)
 
 print("Minimum energy eigenvalue:", np.min(Transverse_Field_Matrix))
 
+
 lowest = np.min(Transverse_Field_Matrix)
 
+# Trying to write function that finds the lowest energy in the matrix and produces vector encoding the maximum independent set
 def target(lowest):
     s = []
     for i in range(n):
