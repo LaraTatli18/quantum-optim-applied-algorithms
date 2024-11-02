@@ -8,9 +8,7 @@ kappa = 0.5 # penalising factor (set in advance)
 n = 5 # no of qubits
 tmax = [1, 2, 5, 10, 100] # total runtime of the algorithm
 q = 200 # number of timesteps
-#step = tmax/q # time evolution runs from 0 to tmax, with steps of duration tmax/q
 i = complex(0,1) # complex i
-
 
 
 J = np.array([[0, 1, 1, 0, 0],
@@ -67,7 +65,6 @@ def sigma_x_j(n,j):
     calc[np.isclose(calc, 0)] = 0 # Changes all instances of -0. to 0.
     return calc
 
-
 def H_Ising(J, h):
     " Produces time-independent Ising matrix from graph J and penalising matrix h "
 
@@ -79,7 +76,6 @@ def H_Ising(J, h):
                 sigma_kz = sigma_z_j(n, k+1)
                 sigma_jz = sigma_z_j(n, j+1)
                 H_problem += J[k, j] * np.matmul(sigma_kz, sigma_jz)
-                #print(J[k, j], sigma_kz, sigma_jz)
 
     for j in range(n):
         if h[j, 0] != 0:  # Only compute if h_j is non-zero
@@ -89,11 +85,13 @@ def H_Ising(J, h):
     return H_problem
 
 
-# Initialise t=0 state:
+# Initialise t=0 state
 def initial_state(n):
     return np.ones(2**n) / np.sqrt(2**n)
 
 psi_0 = initial_state(n) # psi at t=0
+
+# Encode maximum independent set - will write proper function for this
 
 max_independent_set = np.zeros(2**n)
 max_independent_set[19] = 1
@@ -128,28 +126,20 @@ def time_evolution_operator(J, h, ground_state, target_state, tmax_value, q):
 
         H_t = H_evolve + H_interaction
 
-        psi = np.matmul(scipy.linalg.expm(-1j * step * H_t), psi)
+        psi = np.matmul(scipy.linalg.expm(-1 * i * step * H_t), psi)
         prob = born_rule(psi, target_state)
         probabilities.append(prob)
 
-    # for H in H_list:
-    #     psi = np.matmul(scipy.linalg.expm(-1j * step * H), psi)
-    #     prob = born_rule(psi, target_state)
-    #     probabilities.append(prob)
-
     return probabilities
 
-
-
-print("Ground state =", psi_0)
+# Plotting
 
 plt.figure(figsize=(8,6))
 
 for tmax_value in tmax:
     success_probability = time_evolution_operator(J, h, psi_0, max_independent_set, tmax_value, q)
 
-    #x_values = np.arange(0, tmax_value, tmax_value/q) / tmax_value
-    x_values = np.linspace(0, 1, len(success_probability))
+    x_values = np.arange(0, tmax_value, tmax_value/q) / tmax_value
     y_values = success_probability
 
     plt.plot(x_values, y_values, label=f'tmax = {tmax_value}')
