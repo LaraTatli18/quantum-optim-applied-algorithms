@@ -113,6 +113,7 @@ def time_evolution_operator(J, h, ground_state, target_state, tmax_value, q):
     timesteps = np.arange(0, tmax_value, step)
 
     for t in timesteps:
+        # the following functions (A and B) are annealing schedules
         A = 1 - t/tmax_value
         B = t/tmax_value
 
