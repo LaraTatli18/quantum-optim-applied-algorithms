@@ -146,7 +146,8 @@ for tmax_value in tmax:
     plt.plot(x_values, y_values, label=f'tmax = {tmax_value}')
 
 plt.xlabel('t/tmax')
-plt.ylabel('success probability')
-plt.legend()
+plt.ylabel('Success Probability')
+plt.title("Success Probability scaled with algorithm runtime for 5-qubit Graph")
+plt.legend(title = "Runtime of algorithm")
 plt.show()
 
