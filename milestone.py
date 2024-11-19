@@ -1,6 +1,16 @@
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.rcParams['text.usetex'] = True
+plt.rcParams['text.latex.preamble'] = r'\usepackage{bm, amssymb, amsmath}'
+# If necessary, specify the LaTeX installation path
+# plt.rcParams['text.latex.unicode'] = True
+plt.rcParams['font.weight'] = 'bold'
+
+plt.rcParams['font.family'] = 'Times New Roman'
+plt.rcParams['font.size'] = 19
 
 # Standard constants and matrices.
 
@@ -133,21 +143,27 @@ def time_evolution_operator(J, h, ground_state, target_state, tmax_value, q):
 
     return probabilities
 
-# Plotting
+
+# Plotting milestone graph
 
 plt.figure(figsize=(8,6))
+colors = sns.color_palette("hls", len(tmax))
 
-for tmax_value in tmax:
+#for tmax_value in tmax:
+for tmax_value, color in zip(tmax, colors):
     success_probability = time_evolution_operator(J, h, psi_0, max_independent_set, tmax_value, q)
 
     x_values = np.arange(0, tmax_value, tmax_value/q) / tmax_value
+    #x_values = np.linspace(0, 1, len(success_probability))
     y_values = success_probability
 
-    plt.plot(x_values, y_values, label=f'tmax = {tmax_value}')
+    plt.plot(x_values, y_values, label=f'$t_{{max}}$ = {tmax_value}', color=color)
 
-plt.xlabel('t/tmax')
+plt.xlabel('$t$/$t_{{max}}$')
 plt.ylabel('Success Probability')
-plt.title("Success Probability scaled with algorithm runtime for 5-qubit Graph")
-plt.legend(title = "Runtime of algorithm")
+#plt.title("Success Probability scaled with algorithm runtime for 5-qubit Graph")
+plt.legend(title = "Algorithm runtime")
+plt.savefig('milestone_plot.svg', transparent=True)
 plt.show()
+
 
