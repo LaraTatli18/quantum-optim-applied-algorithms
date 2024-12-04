@@ -10,13 +10,13 @@ plt.rcParams['text.latex.preamble'] = r'\usepackage{bm, amssymb, amsmath}'
 plt.rcParams['font.weight'] = 'bold'
 
 plt.rcParams['font.family'] = 'Times New Roman'
-plt.rcParams['font.size'] = 19
+plt.rcParams['font.size'] = 24
 
 # Standard constants and matrices.
 
 kappa = 0.5 # penalising factor (set in advance)
 n = 5 # no of qubits
-tmax = [1, 2, 5, 10, 100] # total runtime of the algorithm
+tmax = [1, 2, 5, 10, 28, 100] # total runtime of the algorithm
 q = 200 # number of timesteps
 i = complex(0,1) # complex i
 
@@ -156,12 +156,13 @@ for tmax_value, color in zip(tmax, colors):
     x_values = np.arange(0, tmax_value, tmax_value/q) / tmax_value
     y_values = success_probability
 
-    plt.plot(x_values, y_values, label=f'$t_{{max}}$ = {tmax_value}', color=color)
+    plt.plot(x_values, y_values, label=f'$t_{{max}}$ = {tmax_value}', color=color, linewidth=3)
 
 plt.xlabel('$t$/$t_{{max}}$')
 plt.ylabel('Success Probability')
 plt.legend(title = "Algorithm runtime")
 plt.savefig('milestone_plot.svg', transparent=True)
+plt.tight_layout()
 plt.show()
 
 
