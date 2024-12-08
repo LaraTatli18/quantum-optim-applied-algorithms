@@ -3,6 +3,7 @@ import scipy
 from scipy.linalg import eigvals
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.font_manager import FontProperties
 
 # LaTeX Formatting
 
@@ -10,13 +11,14 @@ plt.rcParams['text.usetex'] = True
 plt.rcParams['text.latex.preamble'] = r'\usepackage{bm, amssymb, amsmath}'
 # If necessary, specify the LaTeX installation path
 # plt.rcParams['text.latex.unicode'] = True
-plt.rcParams['font.weight'] = 'bold'
 
 plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 24
-plt.rcParams['font.weight'] = 'bold'
-plt.rcParams['axes.labelweight'] = 'bold'       # X and Y axis labels
-plt.rcParams['axes.titleweight'] = 'bold'
+#plt.rcParams['font.weight'] = 'bold'
+#plt.rcParams['axes.labelweight'] = 'bold'       # X and Y axis labels
+#plt.rcParams['axes.titleweight'] = 'bold'
+
+bold_font = FontProperties(weight='bold')
 
 # Standard constants and matrices.
 
@@ -216,6 +218,8 @@ plt.show()
 
 # Instantaneous fidelity as a function of tmax
 
+Palette = sns.color_palette("hls", 5)
+
 plt.figure(figsize=(8, 6))
 plt.ylim(0, 1.05)
 plt.xlim(0, 53)
@@ -228,12 +232,10 @@ for tmax in tmax_fidelities:
     fidelities_individual[tmax-1] = fidelity_value
 
 # plotting fidelity curve
-plt.plot(tmax_fidelities, fidelities_individual, linewidth=3)
+plt.plot(tmax_fidelities, fidelities_individual, linewidth=3, color=Palette[3])
 
-x_limits = plt.gca().get_xlim()  # Get current x-axis limits
-y_limits = plt.gca().get_ylim()  # Get current y-axis limits
-print("x-limits:", x_limits)
-print("y-limits:", y_limits)
+x_limits = plt.gca().get_xlim()
+y_limits = plt.gca().get_ylim()
 
 threshold_90 = 0.90
 threshold_99 = 0.99
@@ -245,57 +247,69 @@ critical_index_99 = np.argmin(np.abs(fidelities_individual - threshold_99))
 min_fidelity = fidelities_individual.min()
 
 # region where fidelity <= 0.90
+
 plt.fill_between(
     tmax_fidelities[:critical_index_90+1],
     min_fidelity,  # Start filling from the x-axis
     fidelities_individual[:critical_index_90+1],
-    color='orange',
+    color=Palette[0],
     alpha=0.2,
-    label="Fidelity <= 0.90"
 )
+
+# region where fidelity <= 0.99
+
+plt.fill_between(
+    tmax_fidelities[critical_index_90:critical_index_99 + 1],  # X-axis range
+    min_fidelity,  # Lower boundary (start from 0.90)
+    fidelities_individual[critical_index_90:critical_index_99 + 1],  # Upper boundary (Fidelity curve)
+    color=Palette[0],
+    alpha=0.1,
+)
+
 
 plt.hlines(
     y=threshold_90,
     xmin=x_limits[0],  # Extend to the left edge of the graph
     xmax=tmax_fidelities[critical_index_90],  # Extend to the right edge of the graph
-    color='gray',
+    color='#004D40',
     linestyle='--',
-    label="Threshold = 0.90"
+    linewidth=3
 )
 plt.hlines(
     y=threshold_99,
     xmin=x_limits[0],  # Extend to the left edge of the graph
     xmax=tmax_fidelities[critical_index_99],  # Extend to the right edge of the graph
-    color='purple',
+    color=Palette[4],
     linestyle='--',
-    label="Threshold = 0.99"
+    linewidth=3,
 )
 
 plt.vlines(
     x=tmax_fidelities[critical_index_90],
     ymin=y_limits[0],  # Start at the bottom of the graph
     ymax=threshold_90,  # End at the threshold
-    color='gray',
+    color="#004D40",
     linestyle='--',
-    label="$t_{max}$ at Fidelity = 0.90"
+    linewidth=3,
+    label=r"$\mathbf{\mathcal{F} = 0.90}$" + "\n" + r"$\mathbf{t_{max} = " + str(tmax_fidelities[critical_index_90]) + "}$"
 )
 
 plt.vlines(
     x=tmax_fidelities[critical_index_99],
     ymin=y_limits[0],  # Start at the bottom of the graph
     ymax=threshold_99,  # End at the threshold
-    color='purple',
+    color=Palette[4],
     linestyle='--',
-    label="$t_{max}$ at Fidelity = 0.99"
+    linewidth=3,
+    label=r"$\mathbf{\mathcal{F} = 0.99}$" + "\n" + r"$\mathbf{t_{max} = " + str(tmax_fidelities[critical_index_99]) + "}$"
 )
 
 
 # Horizontal line at minimum possible fidelity
 plt.axhline(
     y=min_fidelity,
-    color='green',
+    color='gray',
     linestyle='-.',
-    label=f"Minimum Fidelity = {min_fidelity:.2f}"
 )
 
 # Mark the point where Fidelity = Threshold
@@ -304,44 +318,15 @@ t_90_index = np.argmax(fidelities_individual >= threshold_90)  # First index whe
 t_90 = tmax_fidelities[t_90_index]  # Corresponding `tmax`
 
 
-
-print(f"Critical index for 0.90: {critical_index_90}, tmax: {tmax_fidelities[critical_index_90]}")
-print(f"Critical index for 0.99: {critical_index_99}, tmax: {tmax_fidelities[critical_index_99]}")
-
-
 plt.scatter(tmax_fidelities[critical_index_99], fidelities_individual[critical_index_99], color='black', zorder=5)
 plt.scatter(tmax_fidelities[critical_index_90], fidelities_individual[critical_index_90], color='black', zorder=5)
 plt.scatter(tmax_fidelities[minimum_index], fidelities_individual[minimum_index], color='black', zorder=5)
 
-plt.fill_between(
-    tmax_fidelities[critical_index_90:critical_index_99 + 1],  # X-axis range
-    min_fidelity,  # Lower boundary (start from 0.90)
-    fidelities_individual[critical_index_90:critical_index_99 + 1],  # Upper boundary (Fidelity curve)
-    color='orange',
-    alpha=0.1,
-    label="Panel (0.90 to 0.99)"
-)
 
-plt.annotate(
-    f"F = 0.90\n$t_{{max}}$ = {tmax_fidelities[critical_index_90]}",
-    xy=(tmax_fidelities[critical_index_90], fidelities_individual[critical_index_90]),
-    xytext=(tmax_fidelities[critical_index_90] + 4.7, fidelities_individual[critical_index_90] - 0.1),
-    arrowprops=dict(facecolor='black', arrowstyle="->", shrinkA=2, shrinkB=5),
-    weight='bold',
-    fontsize=20
-)
-
-plt.annotate(
-    f"F = 0.99\n$t_{{max}}$ = {tmax_fidelities[critical_index_99]}",
-    xy=(tmax_fidelities[critical_index_99], fidelities_individual[critical_index_99]),
-    xytext=(tmax_fidelities[critical_index_99] + 4.7, fidelities_individual[critical_index_99] - 0.2),
-    arrowprops=dict(facecolor='black', arrowstyle="->", shrinkA=2, shrinkB=5),
-    fontsize=20
-)
-
-plt.ylabel(r'$\mathbf{Fidelity, F}$')
-plt.xlabel(r'$\mathbf{t_{max}}$')
-plt.savefig("fidelity.svg", bbox_inches='tight', transparent=True)
+plt.ylabel(r'$\mathbf{Fidelity, \mathcal{F}}$')
+plt.xlabel(r'$\mathbf{t_{max}}$') # don't use \textbf{}
+plt.legend(loc='center right', frameon=True, shadow=True)
+plt.savefig("fidelity_inst.svg", bbox_inches='tight', transparent=True)
 plt.tight_layout()
 plt.show()
 
