@@ -158,10 +158,10 @@ for tmax_value, color in zip(tmax, colors):
 
     plt.plot(x_values, y_values, label=f'$t_{{max}}$ = {tmax_value}', color=color, linewidth=3)
 
-plt.xlabel('$t$/$t_{{max}}$')
-plt.ylabel('Success Probability')
-plt.legend(title = "Algorithm runtime")
-plt.savefig('milestone_plot.svg', transparent=True)
+plt.xlabel(r'$\mathbf{t/t_{max}}$')  # Use LaTeX for bold symbols
+plt.ylabel(r'$\mathbf{Success\ Probability}$')
+plt.legend(title = "Algorithm runtime", fontsize=22, shadow=True)
+plt.savefig('milestone_plot.svg', transparent=True, bbox_inches='tight')
 plt.tight_layout()
 plt.show()
 
