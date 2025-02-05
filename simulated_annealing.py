@@ -5,11 +5,6 @@ import scipy.sparse as sps
 
 # Develop the Ising Problem Hamiltonian based on bipartite diamond system
 
-import numpy as np
-import random
-import matplotlib.pyplot as plt
-import scipy.sparse as sps
-
 # Define the coupling list
 kvp = [[1, 5, 1.0],
        [1, 6, 1.0],
