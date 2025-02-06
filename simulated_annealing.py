@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')  # Switch to the TkAgg backend
 import random
 import scipy.sparse as sps
 
@@ -90,7 +92,7 @@ def classical_ising_energy(spin_state, J):
                 energy -= J[i, j] * spin_state[i] * spin_state[j]
     return energy
 
-def simulated_annealing(J, nspins, initial_temp=3, final_temp=0, annealing_steps=100, mcsteps=1):
+def simulated_annealing(J, nspins, initial_temp=3, final_temp=0.00001, annealing_steps=100, mcsteps=1):
     """Perform simulated annealing on the Ising system."""
 
     spins = np.random.choice([-1, 1], size=nspins) # Local quantum annealing: instead of generating a randomised new Ising system, we generate a random Spin state
@@ -113,9 +115,13 @@ def simulated_annealing(J, nspins, initial_temp=3, final_temp=0, annealing_steps
             # Calculate energy difference between our "current energy" and energy of the spin state we just created
             new_energy = classical_ising_energy(new_spins, J)
             delta_E = new_energy - current_energy
+            print("delta_E:", delta_E)
 
+            random_number = np.random.uniform()
+            print("random number:", random_number)
+            print("temperature:", temperature_range[i])
             # Apply Metropolis condition; if energy diff less than 0 accept, else accept with probability exp(-delta_E / T)
-            if delta_E < 0 or np.random.uniform() < np.exp(-delta_E / T):
+            if delta_E < 0 or random_number < np.exp(-delta_E / T):
                 spins = new_spins        # Accept new configuration
                 current_energy = new_energy
 
@@ -149,15 +155,15 @@ plt.title("Residual Energy vs. Monte Carlo Steps")
 plt.legend()
 plt.show()
 
-def smooth_energy(energy_history, window_size=10):
-    smoothed = np.convolve(energy_history, np.ones(window_size)/window_size, mode='valid')
-    return smoothed
-
-smoothed_residual = smooth_energy(residual_energy, window_size=10)
-plt.figure(figsize=(8, 5))
-plt.plot(smoothed_residual, label="Smoothed Residual Energy")
-plt.xlabel("Monte Carlo Steps (smoothed)")
-plt.ylabel("Residual Energy")
-plt.title("Smoothed Residual Energy vs. Monte Carlo Steps")
-plt.legend()
-plt.show()
+# def smooth_energy(energy_history, window_size=10):
+#     smoothed = np.convolve(energy_history, np.ones(window_size)/window_size, mode='valid')
+#     return smoothed
+#
+# smoothed_residual = smooth_energy(residual_energy, window_size=10)
+# plt.figure(figsize=(8, 5))
+# plt.plot(smoothed_residual, label="Smoothed Residual Energy")
+# plt.xlabel("Monte Carlo Steps (smoothed)")
+# plt.ylabel("Residual Energy")
+# plt.title("Smoothed Residual Energy vs. Monte Carlo Steps")
+# plt.legend()
+# plt.show()
