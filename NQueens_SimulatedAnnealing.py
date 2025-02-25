@@ -81,7 +81,7 @@ def SwapMove(board):
 def RunSimulatedAnnealing(N, monte_carlo_steps, annealing_steps, initial_T, final_T, A, B, C):
     """Carry out simulated annealing to solve N-queens problem, applying swap move."""
     board = GenerateBoard(N)
-    print(PrintReadableBoard(board))
+    #print(PrintReadableBoard(board))
     temperature_range = np.linspace(initial_T, final_T, annealing_steps)
 
     energies = []
@@ -105,18 +105,87 @@ def RunSimulatedAnnealing(N, monte_carlo_steps, annealing_steps, initial_T, fina
 
     return board, energies, CurrentEnergy
 
-FinalBoard, energies, FinalEnergy = RunSimulatedAnnealing(N=8, monte_carlo_steps=80, annealing_steps=50, initial_T=3, final_T=0.001, A=2, B=2, C=2)
+def RunningMinimum(energies):
+    """Given a list of energy values, find minimum (best energy so far) and add to list"""
+    best_energies = []
+    current_best = np.inf
+    for energy in energies:
+        current_best = min(current_best, energy)
+        best_energies.append(current_best)
+    return np.array(best_energies)
 
-print(PrintReadableBoard(FinalBoard))
-print(FinalEnergy)
+def RunMultipleSimulatedAnnealing(num_runs, N, monte_carlo_steps, annealing_steps, initial_T, final_T, A, B, C):
+    """
+        Runs the simulated annealing multiple times, computes the running minimum (best energy so far)
+        for each run, and returns the average of the best energies over all runs at each Monte Carlo step.
+        """
+    all_best_energies = []
+    total_steps = monte_carlo_steps * annealing_steps
+    best_overall_energy = float("inf")
+    best_overall_board = None
+
+    for i in range(num_runs):
+        #print(f"Run {i+1}/{num_runs}")
+        board, energies, final_energy = RunSimulatedAnnealing(N, monte_carlo_steps, annealing_steps, initial_T, final_T, A, B, C)
+
+        if final_energy < best_overall_energy:
+            best_overall_energy = final_energy
+            best_overall_board = board
+
+        best_energy_per_step = RunningMinimum(energies)
+        all_best_energies.append(best_energy_per_step)
+
+    all_best_energies = np.array(all_best_energies)  # Shape: (num_runs, total_steps)
+    average_best = np.mean(all_best_energies, axis=0)
+    return average_best, best_overall_board, best_overall_energy
+
+# VARIABLES
+
+num_runs = 15
+N = 8
+monte_carlo_steps = 8
+annealing_steps = 50
+initial_T = 3
+final_T = 0.001
+A, B, C = 1, 1, 1
+
+average_best_energy, final_board, final_energy = RunMultipleSimulatedAnnealing(num_runs, N, monte_carlo_steps, annealing_steps,
+                                                    initial_T, final_T, A, B, C)
+
+total_steps = monte_carlo_steps * annealing_steps
+
+# Sample evenly spaced points
+sample_indices = np.linspace(0, total_steps - 1, 15, dtype=int)
+sampled_steps = sample_indices
+sampled_average_energy = average_best_energy[sample_indices]
+
+print("Final Board:")
+print(PrintReadableBoard(final_board))
+print("Ground Energy: ", final_energy)
 
 plt.figure(figsize=(8, 5))
-plt.plot(energies, label="Simulated Annealing Energy")
+plt.plot(sampled_steps, sampled_average_energy, marker='o', label="Averaged Best Energy")
 plt.xlabel("Monte Carlo Steps")
-plt.ylabel("Energy")
-plt.title("Energy vs. Monte Carlo Steps")
+plt.ylabel("Best Energy So Far")
+plt.title("Averaged Best Energy vs. Monte Carlo Steps")
 plt.legend()
 plt.show()
+
+
+# *** Uncomment below if doing 1 run of Simulated Annealing ***
+
+# FinalBoard, energies, FinalEnergy = RunSimulatedAnnealing(N=8, monte_carlo_steps=80, annealing_steps=50, initial_T=3, final_T=0.001, A=2, B=2, C=2)
+#
+# print(PrintReadableBoard(FinalBoard))
+# print(FinalEnergy)
+
+# plt.figure(figsize=(8, 5))
+# plt.plot(energies, label="Simulated Annealing Energy")
+# plt.xlabel("Monte Carlo Steps")
+# plt.ylabel("Energy")
+# plt.title("Energy vs. Monte Carlo Steps")
+# plt.legend()
+# plt.show()
 
 
 
