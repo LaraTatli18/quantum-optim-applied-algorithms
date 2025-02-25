@@ -18,6 +18,7 @@ def GenerateBoard(N):
         col = cell % N
         board[row, col] = 1
     return board
+
 def PrintReadableBoard(board):
     """Prints the chessboard in a human-friendly format"""
     board_dim = board.shape[0]
@@ -104,7 +105,7 @@ def RunSimulatedAnnealing(N, monte_carlo_steps, annealing_steps, initial_T, fina
 
     return board, energies, CurrentEnergy
 
-FinalBoard, energies, FinalEnergy = RunSimulatedAnnealing(N=4, monte_carlo_steps=80, annealing_steps=50, initial_T=3, final_T=0.001, A=2, B=2, C=2)
+FinalBoard, energies, FinalEnergy = RunSimulatedAnnealing(N=8, monte_carlo_steps=80, annealing_steps=50, initial_T=3, final_T=0.001, A=2, B=2, C=2)
 
 print(PrintReadableBoard(FinalBoard))
 print(FinalEnergy)
@@ -116,3 +117,6 @@ plt.ylabel("Energy")
 plt.title("Energy vs. Monte Carlo Steps")
 plt.legend()
 plt.show()
+
+
+
